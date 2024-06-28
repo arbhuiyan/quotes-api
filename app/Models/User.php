@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -43,5 +43,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function tokens()
+    {
+        return $this->hasMany(UserAccessToken::class);
+    }
+
+    public function createToken()
+    {
+        $token = hash('sha1', Str::random(60));
+
+        $this->tokens()->create([
+            'token' => $token,
+            'expires' => now()->addHour(),
+        ]);
+
+        return $token;
     }
 }
